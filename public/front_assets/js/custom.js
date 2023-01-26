@@ -17,5 +17,28 @@ jQuery("#frmRegistration").submit(function (e) {
             }
         },
     });
+});
 
+
+jQuery("#frmLogin").submit(function (e) {
+    e.preventDefault();
+    jQuery("#login_msg").html("");
+    jQuery.ajax({
+        url: "/login_process",
+        data: jQuery("#frmLogin").serialize(),
+        type: "post",
+        success: function (result) {
+            if (result.status == "error") {
+                jQuery("#login_msg").html(result.msg);
+            }
+            if (result.status == "success") {
+                if(result.user_type=="user"){
+                    window.location.href ="user/dashboard";
+                }
+                else{
+                    window.location.href ="admin/dashboard";
+                }
+            }
+        },
+    });
 });

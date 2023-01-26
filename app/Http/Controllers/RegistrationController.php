@@ -36,6 +36,7 @@ class RegistrationController extends Controller
                 "mobile"=>$request->inputMobile,
                 "password"=>Crypt::encrypt($request->inputPassword),
                 "status"=>1,
+                "user_type"=>"user",
                 "created_at"=>date('y-m-d h:i:s'),
                 "updated_at"=>date('y-m-d h:i:s')
             ];
@@ -45,4 +46,34 @@ class RegistrationController extends Controller
         }
     }
 
+
+    public function login_process(Request $request){
+
+        $result=DB::table('users')
+            ->where(['email'=>$request->inputEmail])
+            ->get();
+        $user=$result[0]->user_type;
+//        echo"<pre>";
+//        print_r($user);
+//        die();
+        if(isset($result[0])){
+            $db_pwd=Crypt::decrypt($result[0]->password);
+            if($db_pwd==$request->inputPassword){
+                $request->session()->put('USER_LOGIN',true);
+//                $request->session()->put('FRONT_USER_ID',$result[0]->id);
+//                $request->session()->put('FRONT_USER_NAME',$result[0]->name);
+                $status="success";
+                $msg="";
+            }else{
+                $status="error";
+                $msg="please enter valid password";
+            }
+
+        }else{
+            $status="error";
+            $msg="please enter valid email id";
+        }
+        return response()->json(['status'=>$status,'msg'=>$msg, 'user_type'=>$user]);
+    }
 }
+
